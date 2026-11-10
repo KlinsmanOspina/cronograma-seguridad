@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSec PMO | Cronograma Interactivo de Seguridad</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <!-- Canvas Confetti para celebración de hito -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              black: '#060913',
+              deep: '#0B1120',
+              card: '#111B33',
+              border: 'rgba(255, 255, 255, 0.08)',
+              emerald: '#10B981',
+              emeraldGlow: '#059669',
+              gold: '#F59E0B',
+              rose: '#F43F5E',
+              blue: '#38BDF8'
+            }
+          },
+          fontFamily: {
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #060913; }
+    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+    /* Interactive Matrix Cell */
+    .matrix-cell {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .matrix-cell:hover {
+      transform: scale(0.94);
+    }
+
+    /* Print Optimization */
+    @media print {
+      body { background: white !important; color: black !important; }
+      .no-print { display: none !important; }
+      .print-border { border: 1px solid #ccc !important; }
+    }
+  </style>
+</head>
+
+<body class="bg-cyber-black text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-black">
+
+  <!-- TOP BAR / EXECUTIVE HEADER -->
+  <header class="bg-cyber-deep/80 backdrop-blur-xl border-b border-cyber-border sticky top-0 z-40 px-4 lg:px-8 py-3.5 no-print">
+    <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+      
+      <!-- Brand & Project Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-cyan-400 p-[1px] shadow-lg shadow-emerald-900/30 flex items-center justify-center">
+          <div class="w-full h-full bg-cyber-black rounded-[11px] flex items-center justify-center">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-emerald-400"></i>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold tracking-tight text-white">Debilidades en Seguridad Informática y Privacidad</h1>
+            <span class="px-2 py-0.5 text-[10px] uppercase font-mono tracking-wider font-semibold rounded bg-cyber-gold/10 text-cyber-gold border border-cyber-gold/30">PMO Live</span>
+          </div>
+          <p class="text-xs text-slate-400">Cronograma de Implementación • 8 Semanas (S1 - S8) • Control de Ruta Crítica</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
+        <button onclick="openModal()" class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-black font-semibold rounded-lg text-xs transition duration-200 shadow-lg shadow-emerald-500/20 active:scale-95">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Nueva Tarea
+        </button>
+
+        <button onclick="openSnapshotModal()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs transition active:scale-95">
+          <i data-lucide="camera" class="w-4 h-4 text-cyan-400"></i> Guardar Escenario
+        </button>
+
+        <button onclick="exportToCSV()" class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs transition active:scale-95">
+          <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i> Exportar CSV
+        </button>
+
+        <label class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs cursor-pointer transition active:scale-95">
+          <i data-lucide="upload" class="w-4 h-4 text-brand-gold"></i> Importar CSV
+          <input type="file" id="importInput" accept=".csv" class="hidden" onchange="importCSV(event)">
+        </label>
+
+        <button onclick="window.print()" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition" title="Imprimir / Guardar PDF">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- WORKSPACE -->
+  <main class="max-w-[1600px] w-full mx-auto p-4 lg:p-8 space-y-6 flex-1">
+
+    <!-- EXECUTIVE METRICS RIBBON -->
+    <section class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+      
+      <!-- Progreso Real -->
+      <div class="bg-cyber-card/60 backdrop-blur-md p-4 rounded-xl border border-cyber-border relative overflow-hidden group">
+        <div class="flex justify-between items-center text-xs text-slate-400 font-medium">
+          <span>Avance General</span>
+          <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="text-2xl font-bold font-mono text-white" id="kpiProgress">0%</span>
+          <span class="text-[11px] text-slate-400" id="kpiCompletedTasks">0/8 tareas</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div id="kpiProgressBar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Estado Frente al Hito S8 -->
+      <div class="bg-cyber-card/60 backdrop-blur-md p-4 rounded-xl border border-cyber-border relative overflow-hidden group">
+        <div class="flex justify-between items-center text-xs text-slate-400 font-medium">
+          <span>Hito de Aceptación</span>
+          <span id="kpiStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="text-2xl font-bold text-emerald-400 font-mono" id="kpiStatus">A Tiempo</span>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-2 truncate" id="kpiDeadline">Meta máxima: Semana 8 (40 días)</p>
+      </div>
+
+      <!-- Días Consumidos vs Holgura -->
+      <div class="bg-cyber-card/60 backdrop-blur-md p-4 rounded-xl border border-cyber-border relative overflow-hidden group">
+        <div class="flex justify-between items-center text-xs text-slate-400 font-medium">
+          <span>Duración Total Estimada</span>
+          <i data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="text-2xl font-bold text-white font-mono" id="kpiTotalDays">0 d</span>
+          <span class="text-xs text-slate-400 font-mono" id="kpiTotalWeeks">0 sem</span>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-2" id="kpiSlackDays">Holgura: 0 días</p>
+      </div>
+
+      <!-- Ruta Crítica -->
+      <div class="bg-cyber-card/60 backdrop-blur-md p-4 rounded-xl border border-cyber-border relative overflow-hidden group">
+        <div class="flex justify-between items-center text-xs text-slate-400 font-medium">
+          <span>Ruta Crítica (CPM)</span>
+          <i data-lucide="git-commit" class="w-4 h-4 text-cyber-gold"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="text-2xl font-bold text-cyber-gold font-mono" id="kpiCriticalCount">0</span>
+          <span class="text-[11px] text-slate-400">tareas sin margen</span>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-2 truncate font-mono" id="kpiCriticalChain">-</p>
+      </div>
+
+      <!-- Actividades en Riesgo -->
+      <div class="col-span-2 sm:col-span-1 bg-cyber-card/60 backdrop-blur-md p-4 rounded-xl border border-cyber-border relative overflow-hidden group">
+        <div class="flex justify-between items-center text-xs text-slate-400 font-medium">
+          <span>Riesgo de Desfase</span>
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-cyber-rose"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="text-2xl font-bold font-mono text-white" id="kpiRiskCount">0</span>
+          <span class="text-[11px] text-slate-400">alertas activas</span>
+        </div>
+        <p class="text-[11px] text-cyber-rose mt-2 truncate font-medium" id="kpiRiskLabel">Riesgo Bajo</p>
+      </div>
+
+    </section>
+
+    <!-- LIVE BANNER DE CONFLICTOS -->
+    <div id="conflictAlert" class="hidden bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 flex items-center gap-3 animate-bounce-short">
+      <i data-lucide="alert-octagon" class="w-5 h-5 text-rose-400 shrink-0"></i>
+      <div class="text-xs">
+        <span class="font-bold text-rose-300">¡Riesgo de Incumplimiento del Hito Semana 8!</span>
+        <span class="text-rose-200/80 ml-1" id="conflictText">La duración total proyectada excede los 40 días hábiles permitidos.</span>
+      </div>
+    </div>
+
+    <!-- MAIN INTERACTIVE SECTION WITH SUB-VIEWS -->
+    <div class="bg-cyber-card/40 border border-cyber-border rounded-2xl p-4 lg:p-6 shadow-2xl backdrop-blur-md space-y-6">
+      
+      <!-- CONTROLS & SUB-NAV TABS -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-cyber-border pb-4">
+        
+        <!-- View Selector Pills -->
+        <div class="flex items-center gap-1.5 p-1 bg-slate-900/80 border border-cyber-border rounded-xl">
+          <button onclick="switchTab('matrix')" id="tabBtnMatrix" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 bg-emerald-500 text-black shadow-md transition">
+            <i data-lucide="grid" class="w-3.5 h-3.5"></i> Matriz S1-S8 (Pintor Interactivo)
+          </button>
+          <button onclick="switchTab('tasks')" id="tabBtnTasks" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white flex items-center gap-2 transition">
+            <i data-lucide="check-square" class="w-3.5 h-3.5"></i> Tareas y Dependencias
+          </button>
+          <button onclick="switchTab('sim')" id="tabBtnSim" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white flex items-center gap-2 transition">
+            <i data-lucide="sliders" class="w-3.5 h-3.5"></i> Simulador Cascada
+          </button>
+        </div>
+
+        <!-- Quick filter / Tool tip -->
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>Haz click en las celdas de la matriz para asignar o quitar semanas en vivo</span>
+        </div>
+
+      </div>
+
+      <!-- VIEW 1: MATRIZ DE SEMANAS INTERACTIVA (S1 - S8) -->
+      <div id="viewMatrix" class="space-y-4">
+        <div class="overflow-x-auto pb-2">
+          <table class="w-full text-left text-xs min-w-[850px] border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 font-mono uppercase text-[11px]">
+                <th class="py-3 px-3 w-12 text-center">#</th>
+                <th class="py-3 px-4 min-w-[260px]">Fase / Actividad Macro</th>
+                <th class="py-3 px-3 text-center">Responsable</th>
+                <th class="py-3 px-2 text-center w-14">S1</th>
+                <th class="py-3 px-2 text-center w-14">S2</th>
+                <th class="py-3 px-2 text-center w-14">S3</th>
+                <th class="py-3 px-2 text-center w-14">S4</th>
+                <th class="py-3 px-2 text-center w-14">S5</th>
+                <th class="py-3 px-2 text-center w-14">S6</th>
+                <th class="py-3 px-2 text-center w-14">S7</th>
+                <th class="py-3 px-2 text-center w-14 text-cyber-gold font-bold bg-cyber-gold/5 border-x border-cyber-gold/20">
+                  S8 ◆
+                </th>
+                <th class="py-3 px-3 text-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody" class="divide-y divide-slate-800/60 font-sans">
+              <!-- Renderizado dinámico -->
+            </tbody>
+            <tfoot>
+              <!-- HITO DE ACEPTACIÓN FOOTER ROW -->
+              <tr class="bg-cyber-gold/[0.04] border-t-2 border-cyber-gold/30 font-medium">
+                <td class="py-3.5 px-3 text-center text-cyber-gold font-mono">◆</td>
+                <td class="py-3.5 px-4 text-cyber-gold font-semibold flex items-center gap-2">
+                  <i data-lucide="award" class="w-4 h-4"></i> Hito de Aceptación y Cierre de Proyecto
+                </td>
+                <td class="py-3.5 px-3 text-center text-slate-400 font-mono text-[11px]">Cliente / Proveedor</td>
+                <td colspan="7" class="text-center text-[11px] text-slate-500 italic">Entregables y auditorías concluidas</td>
+                <td class="py-3.5 px-2 text-center bg-cyber-gold/20 border-x border-cyber-gold/40">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold text-cyber-gold bg-black/40 border border-cyber-gold/40">
+                    GO-LIVE
+                  </span>
+                </td>
+                <td class="py-3.5 px-3 text-center text-[10px] text-emerald-400">Semana 8</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
+          <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500"></span> Activa en Semana</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-800 border border-slate-700"></span> Inactiva</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-cyber-gold"></span> Hito de Cierre</span>
+          </div>
+          <button onclick="celebrateMilestone()" class="text-xs text-cyber-gold hover:underline flex items-center gap-1">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Probar Simulación de Éxito en S8
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 2: GESTOR DETALLADO DE ACTIVIDADES Y DEPENDENCIAS -->
+      <div id="viewTasks" class="hidden space-y-4">
+        
+        <!-- Filter Controls -->
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-cyber-deep/60 p-3 rounded-xl border border-cyber-border">
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="filterPriority" onchange="renderTasksTable()" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:border-emerald-500">
+              <option value="ALL">Todas las Prioridades</option>
+              <option value="Alta">Alta</option>
+              <option value="Media">Media</option>
+              <option value="Baja">Baja</option>
+            </select>
+
+            <select id="filterOwner" onchange="renderTasksTable()" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:border-emerald-500">
+              <option value="ALL">Todos los Responsables</option>
+              <option value="Equipo técnico">Equipo técnico</option>
+              <option value="Proveedor">Proveedor</option>
+              <option value="Cliente">Cliente</option>
+            </select>
+
+            <select id="filterStatus" onchange="renderTasksTable()" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:border-emerald-500">
+              <option value="ALL">Todos los Estados</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="En Progreso">En Progreso</option>
+              <option value="Completada">Completada</option>
+            </select>
+          </div>
+
+          <div class="text-xs text-slate-400 font-mono">
+            Mostrando <span id="tasksTableCount" class="text-emerald-400 font-bold">0</span> tareas
+          </div>
+        </div>
+
+        <!-- Task Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 uppercase font-mono text-[11px] bg-slate-900/40">
+                <th class="py-3 px-3 w-12 text-center">#</th>
+                <th class="py-3 px-3">Actividad / Tarea de Seguridad</th>
+                <th class="py-3 px-2 text-center">Prioridad</th>
+                <th class="py-3 px-3">Responsable</th>
+                <th class="py-3 px-2 text-center">Predecesora</th>
+                <th class="py-3 px-2 text-center">Duración</th>
+                <th class="py-3 px-3 text-center">Estado</th>
+                <th class="py-3 px-3 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="detailedTasksBody" class="divide-y divide-slate-800">
+              <!-- Renderizado por JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VIEW 3: SIMULADOR DE CASCADA DINÁMICO -->
+      <div id="viewSim" class="hidden space-y-6">
+        <div class="bg-cyber-deep/60 p-4 rounded-xl border border-cyber-border flex flex-col md:flex-row justify-between md:items-center gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="sliders-horizontal" class="w-4 h-4 text-cyan-400"></i>
+              Simulador de Cascada & Holguras en Tiempo Real
+            </h3>
+            <p class="text-xs text-slate-400">Modifica la duración de las tareas y observa cómo empuja la fecha de fin del proyecto.</p>
+          </div>
+          <button onclick="resetSimulation()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-mono transition flex items-center gap-1.5 self-start">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Restaurar Originales
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Sliders de duración -->
+          <div class="lg:col-span-2 space-y-3" id="simSlidersContainer">
+            <!-- Renderizado dinámico -->
+          </div>
+
+          <!-- Impact Card -->
+          <div class="bg-gradient-to-b from-cyber-deep to-cyber-card p-5 rounded-2xl border border-cyber-border flex flex-col justify-between space-y-4">
+            <div>
+              <span class="text-[11px] uppercase tracking-wider font-mono text-slate-400 font-semibold block mb-2">Análisis de Impacto</span>
+              <div class="space-y-4">
+                <div class="p-3 bg-black/40 rounded-xl border border-slate-800">
+                  <span class="text-xs text-slate-400">Fecha Estimada de Entrega</span>
+                  <div class="text-2xl font-bold font-mono text-white mt-1" id="simDaysText">0 días hábiles</div>
+                  <div class="text-xs text-slate-400 font-mono mt-0.5" id="simWeeksText">Equivalente a 0.0 semanas</div>
+                </div>
+
+                <div class="p-3 bg-black/40 rounded-xl border border-slate-800">
+                  <span class="text-xs text-slate-400">Holgura vs Límite Semana 8</span>
+                  <div class="text-2xl font-bold font-mono mt-1" id="simSlackText">0 días</div>
+                  <p class="text-[11px] text-slate-400 mt-1 leading-snug" id="simExplanationText">-</p>
+                </div>
+
+                <div class="p-3 bg-black/40 rounded-xl border border-slate-800">
+                  <span class="text-xs text-slate-400">Secuencia Crítica Inflexible</span>
+                  <div class="text-xs font-mono text-cyber-gold mt-1 leading-relaxed" id="simPathSequence">
+                    #1 → #2 ...
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-[11px] text-slate-500 border-t border-slate-800 pt-3">
+              ⚡ Al alterar tareas sobre la ruta crítica, el impacto en la fecha de cierre es 1:1.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL: AGREGAR / EDITAR TAREA -->
+  <div id="taskModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-cyber-card border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2" id="modalTitle">
+          <i data-lucide="edit-3" class="w-4 h-4 text-emerald-400"></i> Actividad de Seguridad
+        </h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="taskForm" onsubmit="saveTask(event)" class="space-y-4 mt-4 text-xs">
+        <input type="hidden" id="formId">
+
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Nombre de la Actividad / Tarea *</label>
+          <input type="text" id="formTitle" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Prioridad</label>
+            <select id="formPriority" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+              <option value="Alta">Alta</option>
+              <option value="Media">Media</option>
+              <option value="Baja">Baja</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Responsable</label>
+            <select id="formOwner" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+              <option value="Equipo técnico">Equipo técnico</option>
+              <option value="Cliente">Cliente</option>
+              <option value="Proveedor">Proveedor</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Duración (Días Hábiles)</label>
+            <input type="number" id="formDuration" min="1" max="40" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Depende de (Predecesora)</label>
+            <select id="formDependsOn" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+              <!-- Opciones dinámicas -->
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Estado</label>
+          <select id="formStatus" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white">
+            <option value="Pendiente">Pendiente</option>
+            <option value="En Progreso">En Progreso</option>
+            <option value="Completada">Completada</option>
+          </select>
+        </div>
+
+        <div id="modalCycleAlert" class="hidden p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[11px]">
+          ⚠️ <strong>Error:</strong> Esta dependencia genera una referencia circular infinita en el proyecto.
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition font-medium">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-black rounded-lg transition font-semibold">Guardar Tarea</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SNAPSHOTS / ESCENARIOS GUARDADOS -->
+  <div id="snapshotModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-cyber-card border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl p-6 text-xs">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i> Escenarios y Líneas Base
+        </h3>
+        <button onclick="closeSnapshotModal()" class="text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 mt-4">
+        <div class="flex gap-2">
+          <input type="text" id="snapshotNameInput" placeholder="Nombre de escenario (ej. 'Plan Optimista')" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+          <button onclick="saveCurrentSnapshot()" class="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition">Guardar</button>
+        </div>
+
+        <div>
+          <span class="text-slate-400 font-medium block mb-2">Escenarios Almacenados (Sesión Local):</span>
+          <div id="snapshotList" class="space-y-2 max-h-48 overflow-y-auto">
+            <!-- Renderizado dinámico -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-cyber-deep/80 border-t border-cyber-border py-4 px-6 text-center text-xs text-slate-500 no-print flex flex-col sm:flex-row justify-between items-center max-w-[1600px] w-full mx-auto">
+    <span>Caso de estudio: Debilidades en Seguridad Informática y Privacidad</span>
+    <span class="font-mono text-[11px] text-slate-400 mt-1 sm:mt-0">GitHub Pages Ready • Single Page App</span>
+  </footer>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    // 1. ESTADO DE DATOS BASE (CON CRONOGRAMA ORIGINAL S1-S8)
+    let projectPhases = [
+      { id: 1, name: "1. Análisis", weeks: [1], owner: "Equipo técnico" },
+      { id: 2, name: "2. Instalación", weeks: [2, 3], owner: "Proveedor" },
+      { id: 3, name: "3. Migración", weeks: [3, 4], owner: "Equipo técnico" },
+      { id: 4, name: "4. Configuración", weeks: [4, 5], owner: "Equipo técnico" },
+      { id: 5, name: "5. Pruebas", weeks: [6, 7], owner: "Equipo técnico" },
+      { id: 6, name: "6. Capacitación", weeks: [7], owner: "Cliente" },
+      { id: 7, name: "7. Go-Live", weeks: [8], owner: "Equipo técnico / Proveedor" }
+    ];
+
+    let tasks = [
+      { id: 1, title: "Levantar diagnóstico de vulnerabilidades y riesgos de privacidad actuales", priority: "Alta", owner: "Equipo técnico", dependsOn: null, duration: 3, baseDuration: 3, status: "Completada" },
+      { id: 2, title: "Definir alcance y objetivos del plan de seguridad informática", priority: "Alta", owner: "Cliente", dependsOn: 1, duration: 2, baseDuration: 2, status: "En Progreso" },
+      { id: 3, title: "Instalar y configurar firewall y antivirus corporativo", priority: "Media", owner: "Proveedor", dependsOn: 2, duration: 4, baseDuration: 4, status: "Pendiente" },
+      { id: 4, title: "Migrar y cifrar bases de datos con información sensible", priority: "Alta", owner: "Equipo técnico", dependsOn: 3, duration: 5, baseDuration: 5, status: "Pendiente" },
+      { id: 5, title: "Configurar políticas de contraseñas y control de accesos", priority: "Media", owner: "Equipo técnico", dependsOn: 4, duration: 3, baseDuration: 3, status: "Pendiente" },
+      { id: 6, title: "Implementar copias de seguridad automáticas (backups)", priority: "Alta", owner: "Proveedor", dependsOn: 4, duration: 3, baseDuration: 3, status: "Pendiente" },
+      { id: 7, title: "Realizar pruebas de penetración y auditoría de seguridad", priority: "Media", owner: "Equipo técnico", dependsOn: 6, duration: 4, baseDuration: 4, status: "Pendiente" },
+      { id: 8, title: "Capacitar al personal en buenas prácticas de seguridad y privacidad", priority: "Baja", owner: "Cliente", dependsOn: 7, duration: 3, baseDuration: 3, status: "Pendiente" }
+    ];
+
+    let snapshots = [];
+    let criticalPathTaskIds = new Set();
+    let computedTimes = {};
+
+    // INICIALIZACIÓN
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedState();
+      recalculateAndRender();
+    });
+
+    function recalculateAndRender() {
+      computeCPM();
+      renderKPIs();
+      renderMatrix();
+      renderTasksTable();
+      renderSimulationPanel();
+      saveStateToLocalStorage();
+      lucide.createIcons();
+    }
+
+    // NAVEGACIÓN ENTRE TABS
+    function switchTab(viewKey) {
+      const tabs = {
+        matrix: { btn: 'tabBtnMatrix', view: 'viewMatrix' },
+        tasks: { btn: 'tabBtnTasks', view: 'viewTasks' },
+        sim: { btn: 'tabBtnSim', view: 'viewSim' }
+      };
+
+      Object.values(tabs).forEach(t => {
+        document.getElementById(t.view).classList.add('hidden');
+        const b = document.getElementById(t.btn);
+        b.className = 'px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white flex items-center gap-2 transition';
+      });
+
+      document.getElementById(tabs[viewKey].view).classList.remove('hidden');
+      const activeBtn = document.getElementById(tabs[viewKey].btn);
+      activeBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 bg-emerald-500 text-black shadow-md transition';
+    }
+
+    // 2. CRITICAL PATH METHOD (CPM) & CASCADE ENGINE
+    function computeCPM() {
+      computedTimes = {};
+      criticalPathTaskIds.clear();
+
+      // Forward Pass (ES & EF)
+      tasks.forEach(task => {
+        let es = 0;
+        if (task.dependsOn) {
+          const parent = computedTimes[task.dependsOn];
+          if (parent) es = parent.ef;
+        }
+        const dur = parseInt(task.duration) || 1;
+        computedTimes[task.id] = {
+          es: es,
+          ef: es + dur,
+          duration: dur
+        };
+      });
+
+      const maxDays = Math.max(...Object.values(computedTimes).map(t => t.ef), 0);
+
+      // Backward Pass (LF & LS)
+      tasks.slice().reverse().forEach(task => {
+        const children = tasks.filter(t => t.dependsOn === task.id);
+        let lf = maxDays;
+        if (children.length > 0) {
+          lf = Math.min(...children.map(c => computedTimes[c.id].ls));
+        }
+        const ls = lf - computedTimes[task.id].duration;
+        computedTimes[task.id].ls = ls;
+        computedTimes[task.id].lf = lf;
+        computedTimes[task.id].slack = ls - computedTimes[task.id].es;
+
+        if (computedTimes[task.id].slack === 0) {
+          criticalPathTaskIds.add(task.id);
+        }
+      });
+    }
+
+    // 3. RENDER METRICS & ALERTS
+    function renderKPIs() {
+      const completed = tasks.filter(t => t.status === 'Completada').length;
+      const inProgress = tasks.filter(t => t.status === 'En Progreso').length;
+      const total = tasks.length;
+      const progressPercent = total === 0 ? 0 : Math.round(((completed + (inProgress * 0.5)) / total) * 100);
+
+      document.getElementById('kpiProgress').innerText = `${progressPercent}%`;
+      document.getElementById('kpiProgressBar').style.width = `${progressPercent}%`;
+      document.getElementById('kpiCompletedTasks').innerText = `${completed}/${total} tareas`;
+
+      const maxDays = Math.max(...Object.values(computedTimes).map(t => t.ef), 0);
+      const weeks = (maxDays / 5).toFixed(1);
+      const limitDays = 40; // 8 semanas x 5 días
+      const slack = limitDays - maxDays;
+
+      document.getElementById('kpiTotalDays').innerText = `${maxDays} d`;
+      document.getElementById('kpiTotalWeeks').innerText = `${weeks} sem`;
+
+      const statusEl = document.getElementById('kpiStatus');
+      const statusDot = document.getElementById('kpiStatusDot');
+      const conflictAlert = document.getElementById('conflictAlert');
+
+      if (maxDays > limitDays) {
+        statusEl.innerText = 'Desfasado';
+        statusEl.className = 'text-2xl font-bold text-rose-500 font-mono';
+        statusDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping';
+        conflictAlert.classList.remove('hidden');
+        document.getElementById('conflictText').innerText = 
+          `El cronograma toma ${maxDays} días (~${weeks} semanas). Supera la meta comprometida de la Semana 8 por ${maxDays - limitDays} días hábiles.`;
+      } else {
+        statusEl.innerText = 'A Tiempo';
+        statusEl.className = 'text-2xl font-bold text-emerald-400 font-mono';
+        statusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+        conflictAlert.classList.add('hidden');
+      }
+
+      document.getElementById('kpiSlackDays').innerText = slack >= 0 ? `Holgura: +${slack} días libres` : `Déficit: ${slack} días`;
+      document.getElementById('kpiCriticalCount').innerText = `${criticalPathTaskIds.size}`;
+
+      // Cadena de ruta crítica
+      const chain = Array.from(criticalPathTaskIds).sort((a,b) => a - b).map(id => `#${id}`).join(' → ');
+      document.getElementById('kpiCriticalChain').innerText = chain || 'N/A';
+
+      // Actividades en riesgo
+      const atRisk = tasks.filter(t => criticalPathTaskIds.has(t.id) && t.status !== 'Completada' && maxDays >= 38).length;
+      document.getElementById('kpiRiskCount').innerText = atRisk;
+      document.getElementById('kpiRiskLabel').innerText = atRisk > 0 ? `${atRisk} tareas críticas activas` : 'Cronograma holgado';
+      document.getElementById('kpiRiskLabel').className = atRisk > 0 ? 'text-[11px] text-cyber-rose mt-2 truncate font-medium' : 'text-[11px] text-emerald-400 mt-2 truncate font-medium';
+    }
+
+    // 4. RENDER VISTA 1: MATRIZ DE SEMANAS INTERACTIVA (PINTOR DE CELDAS)
+    function renderMatrix() {
+      const tbody = document.getElementById('matrixTableBody');
+      tbody.innerHTML = '';
+
+      projectPhases.forEach(phase => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/50 transition-colors border-b border-slate-800/40';
+
+        let cellsHtml = '';
+        for (let w = 1; w <= 8; w++) {
+          const isActive = phase.weeks.includes(w);
+          const isWeek8 = w === 8;
+
+          cellsHtml += `
+            <td class="py-2.5 px-1.5 text-center ${isWeek8 ? 'bg-cyber-gold/[0.02] border-x border-cyber-gold/20' : ''}">
+              <button 
+                onclick="togglePhaseWeek(${phase.id}, ${w})" 
+                title="Semana ${w}: ${isActive ? 'Activa (Click para desactivar)' : 'Inactiva (Click para activar)'}"
+                class="matrix-cell w-9 h-7 rounded flex items-center justify-center font-mono text-[10px] font-bold mx-auto transition-all ${
+                  isActive 
+                    ? (isWeek8 ? 'bg-cyber-gold text-black shadow-lg shadow-cyber-gold/20 font-black' : 'bg-emerald-500 text-black shadow-md shadow-emerald-500/20') 
+                    : 'bg-slate-900/80 text-slate-600 hover:text-slate-300 hover:bg-slate-800 border border-slate-800'
+                }">
+                ${isActive ? `S${w}` : '·'}
+              </button>
+            </td>
+          `;
+        }
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 text-center font-mono text-slate-500">#${phase.id}</td>
+          <td class="py-3 px-4 font-semibold text-slate-200">
+            ${phase.name}
+          </td>
+          <td class="py-3 px-3 text-center font-mono text-[11px] text-slate-400">
+            ${phase.owner}
+          </td>
+          ${cellsHtml}
+          <td class="py-3 px-3 text-center">
+            <button onclick="resetPhaseWeeks(${phase.id})" class="text-[10px] text-slate-500 hover:text-slate-300 font-mono underline" title="Reiniciar semana">
+              Limpiar
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function togglePhaseWeek(phaseId, week) {
+      const phase = projectPhases.find(p => p.id === phaseId);
+      if (!phase) return;
+
+      if (phase.weeks.includes(week)) {
+        if (phase.weeks.length > 1) {
+          phase.weeks = phase.weeks.filter(w => w !== week);
+        } else {
+          // Mantener al menos una semana seleccionada
+          return;
+        }
+      } else {
+        phase.weeks.push(week);
+        phase.weeks.sort((a,b) => a - b);
+      }
+      renderMatrix();
+      saveStateToLocalStorage();
+    }
+
+    function resetPhaseWeeks(phaseId) {
+      const phase = projectPhases.find(p => p.id === phaseId);
+      if (phase) {
+        phase.weeks = [phase.id <= 8 ? phase.id : 1];
+        renderMatrix();
+        saveStateToLocalStorage();
+      }
+    }
+
+    // 5. RENDER VISTA 2: GESTOR DETALLADO DE TAREAS
+    function renderTasksTable() {
+      const tbody = document.getElementById('detailedTasksBody');
+      tbody.innerHTML = '';
+
+      const pFilter = document.getElementById('filterPriority').value;
+      const oFilter = document.getElementById('filterOwner').value;
+      const sFilter = document.getElementById('filterStatus').value;
+
+      const filtered = tasks.filter(t => {
+        return (pFilter === 'ALL' || t.priority === pFilter) &&
+               (oFilter === 'ALL' || t.owner === oFilter) &&
+               (sFilter === 'ALL' || t.status === sFilter);
+      });
+
+      document.getElementById('tasksTableCount').innerText = filtered.length;
+
+      filtered.forEach(task => {
+        const isCritical = criticalPathTaskIds.has(task.id);
+        const tr = document.createElement('tr');
+        tr.className = `hover:bg-slate-900/60 transition border-b border-slate-800 ${isCritical ? 'bg-cyber-gold/[0.02]' : ''}`;
+
+        let priorityBadge = 'bg-slate-800 text-slate-300';
+        if (task.priority === 'Alta') priorityBadge = 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
+        if (task.priority === 'Media') priorityBadge = 'bg-cyber-gold/20 text-cyber-gold border border-cyber-gold/30';
+        if (task.priority === 'Baja') priorityBadge = 'bg-slate-700/40 text-slate-400 border border-slate-700';
+
+        let statusClass = 'bg-slate-800 text-slate-400 border border-slate-700';
+        if (task.status === 'En Progreso') statusClass = 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30';
+        if (task.status === 'Completada') statusClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 text-center font-mono font-bold text-slate-400">#${task.id}</td>
+          <td class="py-3 px-3">
+            <div class="font-medium text-slate-200 flex items-center gap-2">
+              <span>${task.title}</span>
+              ${isCritical ? '<span class="text-[9px] bg-cyber-gold/20 text-cyber-gold border border-cyber-gold/40 px-1 rounded font-mono font-semibold">RUTA CRÍTICA</span>' : ''}
+            </div>
+          </td>
+          <td class="py-3 px-2 text-center">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${priorityBadge}">${task.priority}</span>
+          </td>
+          <td class="py-3 px-3 text-slate-300">${task.owner}</td>
+          <td class="py-3 px-2 text-center font-mono text-slate-400">
+            ${task.dependsOn ? `<span class="bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 text-slate-300">#${task.dependsOn}</span>` : '<span class="text-slate-600">-</span>'}
+          </td>
+          <td class="py-3 px-2 text-center font-mono font-bold text-slate-200">
+            ${task.duration} d
+          </td>
+          <td class="py-3 px-3 text-center">
+            <select onchange="updateTaskStatus(${task.id}, this.value)" class="text-[11px] rounded px-2 py-0.5 bg-slate-900 border border-slate-700 text-slate-200 cursor-pointer">
+              <option value="Pendiente" ${task.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+              <option value="En Progreso" ${task.status === 'En Progreso' ? 'selected' : ''}>En Progreso</option>
+              <option value="Completada" ${task.status === 'Completada' ? 'selected' : ''}>Completada</option>
+            </select>
+          </td>
+          <td class="py-3 px-3 text-right">
+            <div class="inline-flex items-center gap-1">
+              <button onclick="editTask(${task.id})" class="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-white rounded transition" title="Editar">
+                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="deleteTask(${task.id})" class="p-1.5 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 rounded transition" title="Eliminar">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    function updateTaskStatus(id, newStatus) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.status = newStatus;
+        recalculateAndRender();
+        if (newStatus === 'Completada' && id === 8) {
+          celebrateMilestone();
+        }
+      }
+    }
+
+    // 6. RENDER VISTA 3: SIMULADOR DE CASCADA DINÁMICO
+    function renderSimulationPanel() {
+      const container = document.getElementById('simSlidersContainer');
+      container.innerHTML = '';
+
+      tasks.forEach(task => {
+        const isCritical = criticalPathTaskIds.has(task.id);
+        const card = document.createElement('div');
+        card.className = `p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+          isCritical ? 'bg-cyber-gold/[0.04] border-cyber-gold/30' : 'bg-slate-900/40 border-slate-800'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold ${isCritical ? 'text-cyber-gold' : 'text-slate-400'}">#${task.id}</span>
+              <span class="text-xs font-semibold text-slate-200 truncate">${task.title}</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-0.5">
+              ${task.owner} • Dependencia: <span class="font-mono">${task.dependsOn ? '#' + task.dependsOn : 'Ninguna'}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <input type="range" min="1" max="15" value="${task.duration}" 
+              oninput="liveUpdateDuration(${task.id}, this.value)"
+              class="w-full sm:w-28 accent-emerald-500 cursor-pointer">
+            <span class="font-mono text-xs font-bold text-white w-14 text-right">${task.duration} d</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Actualizar tarjeta lateral de impacto
+      const maxDays = Math.max(...Object.values(computedTimes).map(t => t.ef), 0);
+      const weeks = (maxDays / 5).toFixed(1);
+      const limitDays = 40;
+      const slack = limitDays - maxDays;
+
+      document.getElementById('simDaysText').innerText = `${maxDays} días hábiles`;
+      document.getElementById('simWeeksText').innerText = `Equivalente a ${weeks} semanas`;
+
+      const slackEl = document.getElementById('simSlackText');
+      const explEl = document.getElementById('simExplanationText');
+
+      if (slack >= 0) {
+        slackEl.innerText = `+${slack} días de holgura`;
+        slackEl.className = 'text-2xl font-bold font-mono mt-1 text-emerald-400';
+        explEl.innerText = 'El proyecto concluye antes o justo en el Go-Live de la Semana 8.';
+        explEl.className = 'text-[11px] text-emerald-400/90 mt-1';
+      } else {
+        slackEl.innerText = `${slack} días (Atraso)`;
+        slackEl.className = 'text-2xl font-bold font-mono mt-1 text-rose-500';
+        explEl.innerText = `El proyecto excede la Semana 8 por ${Math.abs(slack)} días de trabajo. Reajuste duraciones.`;
+        explEl.className = 'text-[11px] text-rose-400 mt-1';
+      }
+
+      const seq = Array.from(criticalPathTaskIds).sort((a,b) => a - b).map(id => `#${id}`).join(' → ');
+      document.getElementById('simPathSequence').innerText = seq || 'Sin tareas';
+    }
+
+    function liveUpdateDuration(id, val) {
+      const task = tasks.find(t => t.id === id);
+      if (task) {
+        task.duration = parseInt(val) || 1;
+        computeCPM();
+        renderKPIs();
+        renderTasksTable();
+        renderSimulationPanel();
+        saveStateToLocalStorage();
+      }
+    }
+
+    function resetSimulation() {
+      tasks.forEach(t => t.duration = t.baseDuration);
+      recalculateAndRender();
+    }
+
+    // 7. PREVENCIÓN DE CICLOS CIRCULARES (Algoritmo DFS)
+    function validateCircularReference(taskId, targetDependencyId) {
+      if (!targetDependencyId) return false;
+      if (taskId === targetDependencyId) return true;
+
+      const graph = {};
+      tasks.forEach(t => {
+        graph[t.id] = t.dependsOn ? [t.dependsOn] : [];
+      });
+      graph[taskId] = [targetDependencyId];
+
+      const visited = new Set();
+      const recursionStack = new Set();
+
+      function dfs(node) {
+        visited.add(node);
+        recursionStack.add(node);
+
+        const neighbors = graph[node] || [];
+        for (const neighbor of neighbors) {
+          if (!visited.has(neighbor)) {
+            if (dfs(neighbor)) return true;
+          } else if (recursionStack.has(neighbor)) {
+            return true;
+          }
+        }
+        recursionStack.delete(node);
+        return false;
+      }
+
+      for (const node of Object.keys(graph).map(Number)) {
+        if (!visited.has(node)) {
+          if (dfs(node)) return true;
+        }
+      }
+      return false;
+    }
+
+    // 8. CRUD MODAL LOGIC
+    function openModal(editId = null) {
+      const modal = document.getElementById('taskModal');
+      const title = document.getElementById('modalTitle');
+      const cycleAlert = document.getElementById('modalCycleAlert');
+      cycleAlert.classList.add('hidden');
+
+      const depSelect = document.getElementById('formDependsOn');
+      depSelect.innerHTML = '<option value="">(Sin dependencia / Inicio libre)</option>';
+      tasks.forEach(t => {
+        if (!editId || t.id !== editId) {
+          depSelect.innerHTML += `<option value="${t.id}">#${t.id} - ${t.title.substring(0, 36)}...</option>`;
+        }
+      });
+
+      if (editId) {
+        const t = tasks.find(x => x.id === editId);
+        title.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4 text-emerald-400"></i> Editar Tarea #${t.id}`;
+        document.getElementById('formId').value = t.id;
+        document.getElementById('formTitle').value = t.title;
+        document.getElementById('formPriority').value = t.priority;
+        document.getElementById('formOwner').value = t.owner;
+        document.getElementById('formDuration').value = t.duration;
+        document.getElementById('formDependsOn').value = t.dependsOn || '';
+        document.getElementById('formStatus').value = t.status;
+      } else {
+        title.innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 text-emerald-400"></i> Nueva Tarea`;
+        document.getElementById('taskForm').reset();
+        document.getElementById('formId').value = '';
+        document.getElementById('formDuration').value = 3;
+      }
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeModal() {
+      document.getElementById('taskModal').classList.add('hidden');
+    }
+
+    function editTask(id) {
+      openModal(id);
+    }
+
+    function deleteTask(id) {
+      if (!confirm(`¿Eliminar la tarea #${id}? Si otras tareas dependen de ella, quedarán sin predecesora.`)) return;
+      tasks.forEach(t => {
+        if (t.dependsOn === id) t.dependsOn = null;
+      });
+      tasks = tasks.filter(t => t.id !== id);
+      recalculateAndRender();
+    }
+
+    function saveTask(e) {
+      e.preventDefault();
+      const idInput = document.getElementById('formId').value;
+      const isNew = !idInput;
+      const id = isNew ? (tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1) : parseInt(idInput);
+      const title = document.getElementById('formTitle').value.trim();
+      const priority = document.getElementById('formPriority').value;
+      const owner = document.getElementById('formOwner').value;
+      const duration = parseInt(document.getElementById('formDuration').value) || 1;
+      const depVal = document.getElementById('formDependsOn').value;
+      const dependsOn = depVal ? parseInt(depVal) : null;
+      const status = document.getElementById('formStatus').value;
+
+      if (validateCircularReference(id, dependsOn)) {
+        document.getElementById('modalCycleAlert').classList.remove('hidden');
+        return;
+      }
+
+      const newTaskObj = {
+        id,
+        title,
+        priority,
+        owner,
+        dependsOn,
+        duration,
+        baseDuration: duration,
+        status
+      };
+
+      if (isNew) {
+        tasks.push(newTaskObj);
+      } else {
+        const idx = tasks.findIndex(t => t.id === id);
+        tasks[idx] = newTaskObj;
+      }
+
+      closeModal();
+      recalculateAndRender();
+    }
+
+    // 9. SNAPSHOTS / BASELINE MANAGER
+    function openSnapshotModal() {
+      renderSnapshotList();
+      document.getElementById('snapshotModal').classList.remove('hidden');
+    }
+
+    function closeSnapshotModal() {
+      document.getElementById('snapshotModal').classList.add('hidden');
+    }
+
+    function saveCurrentSnapshot() {
+      const name = document.getElementById('snapshotNameInput').value.trim() || `Escenario ${snapshots.length + 1}`;
+      snapshots.push({
+        id: Date.now(),
+        name,
+        date: new Date().toLocaleTimeString(),
+        tasks: JSON.parse(JSON.stringify(tasks)),
+        phases: JSON.parse(JSON.stringify(projectPhases))
+      });
+      document.getElementById('snapshotNameInput').value = '';
+      renderSnapshotList();
+      saveStateToLocalStorage();
+    }
+
+    function renderSnapshotList() {
+      const container = document.getElementById('snapshotList');
+      container.innerHTML = '';
+
+      if (snapshots.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 italic">No hay escenarios guardados aún.</p>';
+        return;
+      }
+
+      snapshots.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800';
+        item.innerHTML = `
+          <div>
+            <div class="font-bold text-slate-200">${s.name}</div>
+            <div class="text-[10px] text-slate-500">${s.date} • ${s.tasks.length} tareas</div>
+          </div>
+          <div class="flex items-center gap-1">
+            <button onclick="restoreSnapshot(${s.id})" class="px-2 py-1 bg-emerald-600/30 text-emerald-300 hover:bg-emerald-600/50 rounded font-mono text-[10px]">Cargar</button>
+            <button onclick="deleteSnapshot(${s.id})" class="p-1 text-slate-500 hover:text-rose-400 rounded"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+      lucide.createIcons();
+    }
+
+    function restoreSnapshot(id) {
+      const s = snapshots.find(x => x.id === id);
+      if (s) {
+        tasks = JSON.parse(JSON.stringify(s.tasks));
+        projectPhases = JSON.parse(JSON.stringify(s.phases));
+        closeSnapshotModal();
+        recalculateAndRender();
+      }
+    }
+
+    function deleteSnapshot(id) {
+      snapshots = snapshots.filter(s => s.id !== id);
+      renderSnapshotList();
+      saveStateToLocalStorage();
+    }
+
+    // 10. LOCAL STORAGE PERSISTENCE
+    function saveStateToLocalStorage() {
+      try {
+        localStorage.setItem('CYBERSEC_TASKS', JSON.stringify(tasks));
+        localStorage.setItem('CYBERSEC_PHASES', JSON.stringify(projectPhases));
+        localStorage.setItem('CYBERSEC_SNAPS', JSON.stringify(snapshots));
+      } catch (e) {
+        console.warn('LocalStorage error:', e);
+      }
+    }
+
+    function loadSavedState() {
+      try {
+        const savedTasks = localStorage.getItem('CYBERSEC_TASKS');
+        const savedPhases = localStorage.getItem('CYBERSEC_PHASES');
+        const savedSnaps = localStorage.getItem('CYBERSEC_SNAPS');
+
+        if (savedTasks) tasks = JSON.parse(savedTasks);
+        if (savedPhases) projectPhases = JSON.parse(savedPhases);
+        if (savedSnaps) snapshots = JSON.parse(savedSnaps);
+      } catch (e) {
+        console.warn('Could not parse localStorage state:', e);
+      }
+    }
+
+    // 11. EXPORT / IMPORT CSV
+    function exportToCSV() {
+      let csv = "ID,Prioridad,Actividad / Tarea,Responsable,Depende de,Duracion (dias),Estado\n";
+      tasks.forEach(t => {
+        csv += `${t.id},${t.priority},"${t.title.replace(/"/g, '""')}",${t.owner},${t.dependsOn || '-'},${t.duration},${t.status}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `cronograma_seguridad_privacidad_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function importCSV(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const lines = evt.target.result.split('\n');
+          const imported = [];
+
+          for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const cols = line.split(',');
+            if (cols.length >= 6) {
+              imported.push({
+                id: parseInt(cols[0].trim()),
+                priority: cols[1].trim(),
+                title: cols[2].replace(/"/g, '').trim(),
+                owner: cols[3].trim(),
+                dependsOn: cols[4].trim() === '-' || cols[4].trim() === '' ? null : parseInt(cols[4].trim()),
+                duration: parseInt(cols[5].trim()) || 1,
+                baseDuration: parseInt(cols[5].trim()) || 1,
+                status: cols[6] ? cols[6].trim() : 'Pendiente'
+              });
+            }
+          }
+
+          if (imported.length > 0) {
+            tasks = imported;
+            recalculateAndRender();
+            alert(`¡Se importaron correctamente ${imported.length} actividades!`);
+          }
+        } catch (err) {
+          alert('Hubo un problema al parsear el CSV. Asegúrate del formato.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // 12. CELEBRACIÓN DE HITO (CONFETTI)
+    function celebrateMilestone() {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#10B981', '#F59E0B', '#38BDF8']
+      });
+    }
+  </script>
+</body>
+</html>
